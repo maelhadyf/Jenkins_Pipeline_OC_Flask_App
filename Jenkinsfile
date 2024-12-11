@@ -5,7 +5,7 @@ pipeline {
         // Define variables
         DOCKER_IMAGE = 'flask-memo'
         DOCKER_TAG = "${BUILD_NUMBER}"
-        DOCKER_REGISTRY = 'docker.io/maelhadyf' // e.g., 'quay.io/username' or 'docker.io/username'
+        DOCKER_REGISTRY = 'maelhadyf' // e.g., 'quay.io/username' or 'docker.io/username'
         OPENSHIFT_PROJECT = 'mohamedabdelhady'
         
         // Credentials (configure these in Jenkins)
