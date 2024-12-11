@@ -44,24 +44,8 @@ pipeline {
                 }
             }
         }
-        
-        stage('Deploy to OpenShift') {
-            steps {
-                script {
-                    // Login to OpenShift
-                    sh """
-                        oc login --token=${OPENSHIFT_CREDENTIALS_PSW} --server=your-openshift-server
-                        oc project ${OPENSHIFT_PROJECT}
-                    """
-                    
-                    // Create/Update deployment
-                    sh """
-                        oc set image deployment/${DOCKER_IMAGE} ${DOCKER_IMAGE}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG} --record
-                        oc rollout status deployment/${DOCKER_IMAGE}
-                    """
-                }
-            }
-        }
+
+
     }
     
     post {
