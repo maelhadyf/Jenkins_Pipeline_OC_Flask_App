@@ -79,6 +79,8 @@ pipeline {
         always {
             // Cleanup
             sh 'docker logout ${DOCKER_REGISTRY}'
+            // Remove OpenShift login session
+            sh 'oc logout'
             cleanWs()
         }
     }
