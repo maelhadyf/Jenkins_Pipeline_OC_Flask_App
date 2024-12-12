@@ -41,14 +41,11 @@ pipeline {
                         echo ${DOCKER_CREDENTIALS_PSW} | docker login -u ${DOCKER_CREDENTIALS_USR} --password-stdin
         
                         # Create repository with proper curl syntax
-                        curl -X POST \
-                            -H 'Content-Type: application/json' \
-                            -u "${DOCKER_CREDENTIALS_USR}:${DOCKER_CREDENTIALS_PSW}" \
-                            -d '{\"namespace\":\"${DOCKER_CREDENTIALS_USR}\",\"name\":\"${DOCKER_IMAGE}\",\"is_private\":false}' \
+                        curl -X POST \\
+                            -H 'Content-Type: application/json' \\
+                            -u "${DOCKER_CREDENTIALS_USR}:${DOCKER_CREDENTIALS_PSW}" \\
+                            -d '{\\"namespace\\":\\"${DOCKER_CREDENTIALS_USR}\\",\\"name\\":\\"${DOCKER_IMAGE}\\",\\"is_private\\":false}' \\
                             https://hub.docker.com/v2/repositories/ || true
-        
-                        # Verify login status
-                        docker login -u ${DOCKER_CREDENTIALS_USR} --password-stdin <<< "${DOCKER_CREDENTIALS_PSW}"
                     """
                 }
             }
@@ -58,13 +55,11 @@ pipeline {
             steps {
                 script {
                     sh """
-                        # Ensure image is properly tagged
+                        # Ensure we're logged in
+                        echo ${DOCKER_CREDENTIALS_PSW} | docker login -u ${DOCKER_CREDENTIALS_USR} --password-stdin
+                        
+                        # Tag and push the image
                         docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        
-                        # Verify we're still logged in
-                        docker login -u ${DOCKER_CREDENTIALS_USR} --password-stdin <<< "${DOCKER_CREDENTIALS_PSW}"
-                        
-                        # Push the image
                         docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}
                     """
                 }
