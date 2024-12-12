@@ -1,4 +1,4 @@
-@Library('shared-library') _
+@Library('shared-library@1') _
 
 // Import Constants from shared library
 import org.demo.Constants
