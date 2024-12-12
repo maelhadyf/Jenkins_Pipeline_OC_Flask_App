@@ -55,7 +55,7 @@ pipeline {
                         sh """
                             # Login to OpenShift
                             oc login --token=${OPENSHIFT_TOKEN} --server=${OPENSHIFT_SERVER} --insecure-skip-tls-verify=true
-                            oc ${OPENSHIFT_PROJECT}
+                            #oc ${OPENSHIFT_PROJECT}
             
                             # Replace variables in deployment.yaml
                             sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${DOCKER_TAG}|'${DOCKER_TAG}'|g' app-deployment.yaml > deployment_processed.yaml
