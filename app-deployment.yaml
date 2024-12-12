@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${DOCKER_IMAGE}
+  labels:
+    app: ${DOCKER_IMAGE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${DOCKER_IMAGE}
+  template:
+    metadata:
+      labels:
+        app: ${DOCKER_IMAGE}
+    spec:
+      containers:
+      - name: ${DOCKER_IMAGE}
+        image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${DOCKER_IMAGE}
+  labels:
+    app: ${DOCKER_IMAGE}
+spec:
+  ports:
+  - port: 5000
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    app: ${DOCKER_IMAGE}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ${DOCKER_IMAGE}
+  labels:
+    app: ${DOCKER_IMAGE}
+spec:
+  to:
+    kind: Service
+    name: ${DOCKER_IMAGE}
+  port:
+    targetPort: 5000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
