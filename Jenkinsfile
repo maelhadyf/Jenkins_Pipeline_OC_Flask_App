@@ -4,7 +4,6 @@ pipeline {
     environment {
         // Define variables
         DOCKER_IMAGE = 'flask-memo'
-        DOCKER_TAG = "${BUILD_NUMBER}"
         DOCKER_REGISTRY = 'docker.io/maelhadyf' // e.g., 'quay.io/username' or 'docker.io/username'
         OPENSHIFT_PROJECT = 'mohamedabdelhady'
         OPENSHIFT_SERVER  = 'https://api.ocp-training.ivolve-test.com:6443'
@@ -27,7 +26,7 @@ pipeline {
                 script {
                     // Build the Docker image
                     sh """
-                        docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                        docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} .
                     """
                 }
             }
@@ -41,8 +40,8 @@ pipeline {
                         echo ${DOCKER_CREDENTIALS_PSW} | docker login -u ${DOCKER_CREDENTIALS_USR} --password-stdin
                         
                         # Tag and push the image
-                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}
+                        docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}
                     """
                 }
             }
@@ -55,10 +54,9 @@ pipeline {
                         sh """
                             # Login to OpenShift
                             oc login --token=${OPENSHIFT_TOKEN} --server=${OPENSHIFT_SERVER} --insecure-skip-tls-verify=true
-                            #oc ${OPENSHIFT_PROJECT}
             
                             # Replace variables in deployment.yaml
-                            sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${DOCKER_TAG}|'${DOCKER_TAG}'|g' app-deployment.yaml > deployment_processed.yaml
+                            sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${BUILD_NUMBER}|'${BUILD_NUMBER}'|g' app-deployment.yaml > deployment_processed.yaml
             
                             # Apply the configuration
                             oc apply -f deployment_processed.yaml
