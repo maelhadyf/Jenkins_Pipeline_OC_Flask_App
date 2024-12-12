@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'jenkins/jenkins:lts'
+            args '-v /usr/local/bin/oc:/usr/local/bin/oc'  // Mount oc binary from host
+        }
+    }
     
     environment {
         // Define variables
