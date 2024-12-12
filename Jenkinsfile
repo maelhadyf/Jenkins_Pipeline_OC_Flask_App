@@ -40,13 +40,7 @@ pipeline {
                     sh """
                         echo ${DOCKER_CREDENTIALS_PSW} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_CREDENTIALS_USR} --password-stdin
 
-                        # Create repository with proper curl syntax
-                        curl -X POST \
-                        -H 'Content-Type: application/json' \
-                        -u "${DOCKER_CREDENTIALS_USR}:${DOCKER_CREDENTIALS_PSW}" \
-                        -d '{\"namespace\":\"${DOCKER_CREDENTIALS_USR}\",\"name\":\"${DOCKER_IMAGE}\",\"is_private\":false}' \
-                        https://hub.docker.com/v2/repositories/ || true
-                        
+
                         docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}
                     """
                 }
