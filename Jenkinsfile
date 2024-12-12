@@ -1,14 +1,19 @@
+@Library('shared-library') _
+
+// Import Constants from shared library
+import org.demo.Constants
+
 pipeline {
     agent any
     
     environment {
-        // Define variables
-        DOCKER_IMAGE = 'flask-memo'
-        DOCKER_REGISTRY = 'docker.io/maelhadyf' // e.g., 'quay.io/username' or 'docker.io/username'
-        OPENSHIFT_PROJECT = 'mohamedabdelhady'
-        OPENSHIFT_SERVER  = 'https://api.ocp-training.ivolve-test.com:6443'
+        // Use Constants from shared library
+        DOCKER_IMAGE = Constants.DOCKER_IMAGE
+        DOCKER_REGISTRY = Constants.DOCKER_REGISTRY
+        OPENSHIFT_PROJECT = Constants.OPENSHIFT_PROJECT
+        OPENSHIFT_SERVER = Constants.OPENSHIFT_SERVER
         
-        // Credentials (configure these in Jenkins)
+        // Credentials
         DOCKER_CREDENTIALS = credentials('docker-cred-id')
         OPENSHIFT_CREDENTIALS = credentials('openshift-cred-id')
     }
@@ -16,7 +21,6 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Get code from repository
                 checkout scm
             }
         }
@@ -24,10 +28,11 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh """
-                        docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} .
-                    """
+                    // Use shared library function
+                    buildDockerImage([
+                        imageName: env.DOCKER_IMAGE,
+                        buildNumber: env.BUILD_NUMBER
+                    ])
                 }
             }
         }
@@ -35,14 +40,12 @@ pipeline {
         stage('Push to Registry') {
             steps {
                 script {
-                    sh """
-                        # Ensure we're logged in
-                        echo ${DOCKER_CREDENTIALS_PSW} | docker login -u ${DOCKER_CREDENTIALS_USR} --password-stdin
-                        
-                        # Tag and push the image
-                        docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}
-                        docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}
-                    """
+                    // Use shared library function
+                    pushToRegistry([
+                        imageName: env.DOCKER_IMAGE,
+                        registry: env.DOCKER_REGISTRY,
+                        buildNumber: env.BUILD_NUMBER
+                    ])
                 }
             }
         }
@@ -50,38 +53,30 @@ pipeline {
         stage('Deploy to OpenShift') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'openshift-cred-id', variable: 'OPENSHIFT_TOKEN')]) {
-                        sh """
-                            # Login to OpenShift
-                            oc login --token=${OPENSHIFT_TOKEN} --server=${OPENSHIFT_SERVER} --insecure-skip-tls-verify=true
-            
-                            # Replace variables in deployment.yaml
-                            sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${BUILD_NUMBER}|'${BUILD_NUMBER}'|g' app-deployment.yaml > deployment_processed.yaml
-            
-                            # Apply the configuration
-                            oc apply -f deployment_processed.yaml
-            
-                            # Wait for rollout to complete
-                            oc rollout status deployment/${DOCKER_IMAGE}
-            
-                            # Get the Route URL
-                            echo "Application is deployed at: \$(oc get route ${DOCKER_IMAGE} -o jsonpath='{.spec.host}')"
-                        """
-                    }
+                    // Use shared library function
+                    deployToOpenShift([
+                        imageName: env.DOCKER_IMAGE,
+                        registry: env.DOCKER_REGISTRY,
+                        server: env.OPENSHIFT_SERVER,
+                        buildNumber: env.BUILD_NUMBER
+                    ])
                 }
             }
         }
-
-
     }
     
     post {
         always {
-            // Cleanup
-            sh 'docker logout ${DOCKER_REGISTRY}'
-            // Remove OpenShift login session
-            sh 'oc logout'
-            cleanWs()
+            script {
+                // Cleanup
+                sh """
+                    docker logout ${env.DOCKER_REGISTRY}
+                    oc logout
+                """
+                cleanWs()
+            }
         }
+
     }
+
 }
