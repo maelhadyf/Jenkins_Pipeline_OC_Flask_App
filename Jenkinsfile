@@ -6,19 +6,26 @@ import org.demo.Constants
 pipeline {
     agent any
     
-    environment {
-        // Use Constants from shared library
-        DOCKER_IMAGE = Constants.DOCKER_IMAGE
-        DOCKER_REGISTRY = Constants.DOCKER_REGISTRY
-        OPENSHIFT_PROJECT = Constants.OPENSHIFT_PROJECT
-        OPENSHIFT_SERVER = Constants.OPENSHIFT_SERVER
-        
+    environment {        
         // Credentials
         DOCKER_CREDENTIALS = credentials('docker-cred-id')
         OPENSHIFT_CREDENTIALS = credentials('openshift-cred-id')
     }
     
     stages {
+
+        stage('Initialize') {
+            steps {
+                script {
+                    // Set variables from Constants
+                    env.DOCKER_IMAGE = Constants.DOCKER_IMAGE
+                    env.DOCKER_REGISTRY = Constants.DOCKER_REGISTRY
+                    env.OPENSHIFT_PROJECT = Constants.OPENSHIFT_PROJECT
+                    env.OPENSHIFT_SERVER = Constants.OPENSHIFT_SERVER
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
