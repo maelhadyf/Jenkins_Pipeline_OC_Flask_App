@@ -47,6 +47,30 @@ pipeline {
             }
         }
 
+        stage('Deploy to OpenShift') {
+            steps {
+                script {
+                    sh """
+                        # Login to OpenShift
+                        oc login --token=${OPENSHIFT_CREDENTIALS_PSW} --server=your-openshift-server
+                        oc project your-project-name
+        
+                        # Replace variables in deployment.yaml
+                        sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${DOCKER_TAG}|'${DOCKER_TAG}'|g' deployment.yaml > deployment_processed.yaml
+        
+                        # Apply the configuration
+                        oc apply -f deployment_processed.yaml
+        
+                        # Wait for rollout to complete
+                        oc rollout status deployment/${DOCKER_IMAGE}
+        
+                        # Get the Route URL
+                        echo "Application is deployed at: \$(oc get route ${DOCKER_IMAGE} -o jsonpath='{.spec.host}')"
+                """
+                }
+            }
+        }
+
 
     }
     
