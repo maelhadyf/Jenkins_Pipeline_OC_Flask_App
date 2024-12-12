@@ -54,20 +54,20 @@ pipeline {
                     withCredentials([string(credentialsId: 'openshift-cred-id', variable: 'OPENSHIFT_TOKEN')]) {
                         sh """
                             # Login to OpenShift
-                            /usr/local/bin/oc login --token=${OPENSHIFT_TOKEN} --server=${OPENSHIFT_SERVER}
-                            /usr/local/bin/oc ${OPENSHIFT_PROJECT}
+                            oc login --token=${OPENSHIFT_TOKEN} --server=${OPENSHIFT_SERVER}
+                            oc ${OPENSHIFT_PROJECT}
             
                             # Replace variables in deployment.yaml
                             sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${DOCKER_TAG}|'${DOCKER_TAG}'|g' app-deployment.yaml > deployment_processed.yaml
             
                             # Apply the configuration
-                            /usr/local/bin/oc apply -f deployment_processed.yaml
+                            oc apply -f deployment_processed.yaml
             
                             # Wait for rollout to complete
-                            /usr/local/bin/oc rollout status deployment/${DOCKER_IMAGE}
+                            oc rollout status deployment/${DOCKER_IMAGE}
             
                             # Get the Route URL
-                            echo "Application is deployed at: \$(/usr/local/bin/oc get route ${DOCKER_IMAGE} -o jsonpath='{.spec.host}')"
+                            echo "Application is deployed at: \$(oc get route ${DOCKER_IMAGE} -o jsonpath='{.spec.host}')"
                         """
                     }
                 }
