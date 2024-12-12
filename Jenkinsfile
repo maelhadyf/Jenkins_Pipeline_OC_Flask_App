@@ -54,7 +54,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'openshift-cred-id', variable: 'OPENSHIFT_TOKEN')]) {
                         sh """
                             # Login to OpenShift
-                            oc login --token=${OPENSHIFT_TOKEN} --server=${OPENSHIFT_SERVER}
+                            oc login --token=${OPENSHIFT_TOKEN} --server=${OPENSHIFT_SERVER} --insecure-skip-tls-verify=true
                             oc ${OPENSHIFT_PROJECT}
             
                             # Replace variables in deployment.yaml
