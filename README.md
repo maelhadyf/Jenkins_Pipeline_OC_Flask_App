@@ -14,12 +14,17 @@
 - Rolling updates
 - Health checks
 
-## 🔧 Prerequisites
+
+## ✅ Prerequisites
 - Python 3.x
 - Docker
 - Jenkins
 - OpenShift CLI (oc)
 - Access to OpenShift cluster
+
+## 🔧 Configuration
+put this script on ec2_amazon linux ami in **user data** during creation
+`configure_ec2_amazonlinux_docker_openshift_ jenkins.sh`
 
 ## 🏃‍♂️ Running the Pipeline
 1. Configure Jenkins with necessary credentials
