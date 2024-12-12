@@ -1,1 +1,1 @@
-# Jenkins_Pipeline_OC_Flask_App
+# Jenkins_Pipeline_OpenShift_Flask_App
