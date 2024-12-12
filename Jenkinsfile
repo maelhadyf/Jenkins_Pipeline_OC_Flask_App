@@ -57,7 +57,7 @@ pipeline {
                         oc ${OPENSHIFT_PROJECT}
         
                         # Replace variables in deployment.yaml
-                        sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${DOCKER_TAG}|'${DOCKER_TAG}'|g' deployment.yaml > deployment_processed.yaml
+                        sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${DOCKER_TAG}|'${DOCKER_TAG}'|g' app-deployment.yaml > deployment_processed.yaml
         
                         # Apply the configuration
                         oc apply -f deployment_processed.yaml
