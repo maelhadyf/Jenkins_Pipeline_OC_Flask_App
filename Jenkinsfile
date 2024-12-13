@@ -56,7 +56,7 @@ pipeline {
                             oc login --token=${OPENSHIFT_TOKEN} --server=${OPENSHIFT_SERVER} --insecure-skip-tls-verify=true
             
                             # Replace variables in deployment.yaml
-                            sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${BUILD_NUMBER}|'${BUILD_NUMBER}'|g' app-deployment.yaml > deployment_processed.yaml
+                            sed 's|\${DOCKER_REGISTRY}|'${DOCKER_REGISTRY}'|g; s|\${DOCKER_IMAGE}|'${DOCKER_IMAGE}'|g; s|\${DOCKER_TAG}|'${BUILD_NUMBER}'|g' app-deployment.yaml > deployment_processed.yaml
             
                             # Apply the configuration
                             oc apply -f deployment_processed.yaml
